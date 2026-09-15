@@ -179,6 +179,8 @@
       <input type="file" id="file" accept="image/*" hidden>
     </div>
 
+    <button class="btn ghost" id="loadExample" style="margin-bottom:14px">Load example sprite</button>
+
     <div class="row">
       <label>Shadow type</label>
       <div class="seg" id="typeSeg">
@@ -407,6 +409,51 @@
     };
     img.src = url;
   }
+
+  // load example: generate a 48x48 pixel-art smiley in code, same path as upload
+  function loadExample() {
+    var size = 48;
+    var c = document.createElement("canvas");
+    c.width = size; c.height = size;
+    var x = c.getContext("2d");
+    x.clearRect(0, 0, size, size);
+    // face (circle)
+    x.fillStyle = "#ffd23f";
+    x.beginPath();
+    x.arc(24, 24, 20, 0, Math.PI * 2);
+    x.fill();
+    // outline
+    x.strokeStyle = "#3a2c0a";
+    x.lineWidth = 2;
+    x.stroke();
+    // eyes
+    x.fillStyle = "#222";
+    x.fillRect(15, 17, 4, 6);
+    x.fillRect(29, 17, 4, 6);
+    // smile
+    x.strokeStyle = "#222";
+    x.lineWidth = 3;
+    x.beginPath();
+    x.arc(24, 26, 9, 0.25 * Math.PI, 0.75 * Math.PI);
+    x.stroke();
+    // cheeks
+    x.fillStyle = "#ff8a5c";
+    x.fillRect(11, 27, 4, 3);
+    x.fillRect(33, 27, 4, 3);
+    var img = new Image();
+    img.onload = function () {
+      sprite = img;
+      sw = img.naturalWidth;
+      sh = img.naturalHeight;
+      empty.style.display = "none";
+      cv.style.display = "block";
+      status.style.color = "var(--ok)";
+      status.textContent = "Loaded example " + sw + "\u00d7" + sh + " px";
+      render();
+    };
+    img.src = c.toDataURL("image/png");
+  }
+  document.getElementById("loadExample").addEventListener("click", loadExample);
 
   // file input + dropzone
   drop.addEventListener("click", function () { fileInput.click(); });
