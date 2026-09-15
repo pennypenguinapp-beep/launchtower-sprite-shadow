@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sprite Shadow Generator — LaunchTower</title>
+<style>
+  :root {
+    --bg: #14161c;
+    --panel: #1d2029;
+    --panel2: #232734;
+    --border: #303545;
+    --text: #e8eaf0;
+    --muted: #9aa1b5;
+    --accent: #5b8cff;
+    --accent2: #3f6fe0;
+    --ok: #43c98a;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 14px 40px;
+  }
+  header { text-align: center; margin-bottom: 18px; max-width: 720px; }
+  h1 { font-size: 1.45rem; font-weight: 700; letter-spacing: .2px; }
+  h1 .brand { color: var(--accent); }
+  .sub { color: var(--muted); font-size: .85rem; margin-top: 6px; line-height: 1.5; }
+  .wrap {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 16px;
+    width: 100%;
+    max-width: 980px;
+    align-items: start;
+  }
+  @media (max-width: 760px) {
+    .wrap { grid-template-columns: 1fr; }
+  }
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+  }
+  .panel h2 {
+    font-size: .72rem;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+  .row { margin-bottom: 14px; }
+  .row label { display: block; font-size: .8rem; color: var(--muted); margin-bottom: 6px; }
+  .row .val { color: var(--text); font-weight: 600; float: right; }
+  input[type=range] {
+    width: 100%;
+    accent-color: var(--accent);
+    height: 22px;
+    cursor: pointer;
+  }
+  input[type=color] {
+    width: 100%;
+    height: 34px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--panel2);
+    cursor: pointer;
+    padding: 2px;
+  }
+  .seg {
+    display: flex;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .seg button {
+    flex: 1;
+    background: var(--panel2);
+    color: var(--muted);
+    border: none;
+    padding: 8px 4px;
+    font-size: .8rem;
+    cursor: pointer;
+    font-weight: 600;
+  }
+  .seg button + button { border-left: 1px solid var(--border); }
+  .seg button.active { background: var(--accent2); color: #fff; }
+  .check { display: flex; align-items: center; gap: 8px; font-size: .82rem; color: var(--text); cursor: pointer; user-select: none; }
+  .check input { accent-color: var(--accent); width: 16px; height: 16px; cursor: pointer; }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 9px;
+    padding: 11px 14px;
+    font-size: .9rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background .15s;
+  }
+  .btn:hover { background: var(--accent2); }
+  .btn.ghost { background: var(--panel2); color: var(--text); border: 1px solid var(--border); }
+  .btn.ghost:hover { background: #2b3040; }
+  .drop {
+    border: 2px dashed var(--border);
+    border-radius: 10px;
+    padding: 18px 12px;
+    text-align: center;
+    color: var(--muted);
+    font-size: .82rem;
+    cursor: pointer;
+    transition: border-color .15s, background .15s;
+    margin-bottom: 14px;
+  }
+  .drop:hover, .drop.over { border-color: var(--accent); background: rgba(91,140,255,.06); color: var(--text); }
+  .drop b { color: var(--accent); }
+  .stage {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    min-height: 380px;
+    display: flex;
+    flex-direction: column;
+  }
+  .stage-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; gap: 10px; flex-wrap: wrap; }
+  .stage-top h2 { margin: 0; }
+  .canvas-box {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: auto;
+    border-radius: 10px;
+    background: #0e1015;
+    min-height: 260px;
+    max-height: 520px;
+  }
+  canvas { image-rendering: pixelated; display: block; }
+  .empty {
+    color: var(--muted);
+    font-size: .85rem;
+    text-align: center;
+    padding: 30px 10px;
+    line-height: 1.6;
+  }
+  .empty .big { font-size: 2rem; margin-bottom: 10px; opacity: .7; }
+  .hint { color: var(--muted); font-size: .74rem; margin-top: 10px; text-align: center; }
+  footer { margin-top: 26px; text-align: center; color: var(--muted); font-size: .78rem; }
+  footer a { color: var(--accent); text-decoration: none; font-weight: 600; }
+  footer a:hover { text-decoration: underline; }
+  .status { font-size: .75rem; color: var(--ok); margin-top: 8px; text-align: center; min-height: 1em; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Sprite Shadow <span class="brand">Generator</span></h1>
+  <p class="sub">Add a drop shadow or a skewed ground shadow to any sprite. Tune offset, opacity, color and skew, preview at zoom, then download a clean PNG. Runs 100% in your browser — nothing is uploaded.</p>
+</header>
+
+<div class="wrap">
+  <div class="panel">
+    <h2>Controls</h2>
+
+    <div class="drop" id="drop">
+      <b>Click or drop</b> a sprite here<br>
+      <span style="font-size:.72rem;opacity:.8">PNG / WebP / GIF / JPG</span>
+      <input type="file" id="file" accept="image/*" hidden>
+    </div>
+
+    <div class="row">
+      <label>Shadow type</label>
+      <div class="seg" id="typeSeg">
+        <button data-type="drop" class="active">Drop</button>
+        <button data-type="ground">Ground</button>
+      </div>
+    </div>
+
+    <div class="row">
+      <label>Offset X <span class="val" id="oxVal">6</span></label>
+      <input type="range" id="ox" min="-64" max="64" value="6">
+    </div>
+
+    <div class="row">
+      <label>Offset Y <span class="val" id="oyVal">8</span></label>
+      <input type="range" id="oy" min="-64" max="64" value="8">
+    </div>
+
+    <div class="row ground-only" style="display:none">
+      <label>Skew (°) <span class="val" id="skewVal">18</span></label>
+      <input type="range" id="skew" min="-60" max="60" value="18">
+    </div>
+
+    <div class="row">
+      <label>Opacity <span class="val" id="opVal">45%</span></label>
+      <input type="range" id="op" min="0" max="100" value="45">
+    </div>
+
+    <div class="row">
+      <label>Shadow color</label>
+      <input type="color" id="color" value="#000000">
+    </div>
+
+    <div class="row">
+      <label>Blur <span class="val" id="blurVal">0</span></label>
+      <input type="range" id="blur" min="0" max="16" value="0">
+    </div>
+
+    <div class="row">
+      <label class="check"><input type="checkbox" id="checker" checked> Checkerboard background</label>
+    </div>
+
+    <div class="row">
+      <label>Preview zoom <span class="val" id="zoomVal">8×</span></label>
+      <input type="range" id="zoom" min="1" max="32" value="8">
+    </div>
+
+    <button class="btn" id="download">Download PNG</button>
+    <button class="btn ghost" id="reset" style="margin-top:8px">Reset</button>
+    <div class="status" id="status"></div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-top">
+      <h2 style="font-size:.72rem;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted)">Preview</h2>
+      <span id="dims" style="font-size:.75rem;color:var(--muted)"></span>
+    </div>
+    <div class="canvas-box" id="box">
+      <div class="empty" id="empty">
+        <div class="big">🎨</div>
+        Load a sprite to start adding shadows.<br>
+        Transparent PNGs work best.
+      </div>
+      <canvas id="cv" style="display:none"></canvas>
+    </div>
+    <div class="hint">Drop shadow = offset copy behind the sprite · Ground shadow = skewed silhouette under it</div>
+  </div>
+</div>
+
+<footer>
+  Part of <a href="https://pennypenguinapp-beep.github.io/" target="_blank" rel="noopener">LaunchTower</a> — free tools for pixel artists &amp; game devs.
+</footer>
+
+<script>
+(function () {
+  "use strict";
+  var cv = document.getElementById("cv");
+  var ctx = cv.getContext("2d");
+  var empty = document.getElementById("empty");
+  var dims = document.getElementById("dims");
+  var status = document.getElementById("status");
+  var box = document.getElementById("box");
+  var fileInput = document.getElementById("file");
+  var drop = document.getElementById("drop");
+
+  var sprite = null;       // HTMLImageElement
+  var sw = 0, sh = 0;      // sprite natural size
+  var type = "drop";
+
+  var els = {
+    ox: document.getElementById("ox"),
+    oy: document.getElementById("oy"),
+    skew: document.getElementById("skew"),
+    op: document.getElementById("op"),
+    color: document.getElementById("color"),
+    blur: document.getElementById("blur"),
+    checker: document.getElementById("checker"),
+    zoom: document.getElementById("zoom")
+  };
+  var vals = {
+    ox: document.getElementById("oxVal"),
+    oy: document.getElementById("oyVal"),
+    skew: document.getElementById("skewVal"),
+    op: document.getElementById("opVal"),
+    blur: document.getElementById("blurVal"),
+    zoom: document.getElementById("zoomVal")
+  };
+
+  function hexToRgb(hex) {
+    var h = hex.replace("#", "");
+    if (h.length === 3) h = h[0]+h[0]+h[1]+h[1]+h[2]+h[2];
+    var n = parseInt(h, 16);
+    return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+  }
+
+  function getParams() {
+    return {
+      ox: parseInt(els.ox.value, 10),
+      oy: parseInt(els.oy.value, 10),
+      skew: parseInt(els.skew.value, 10),
+      op: parseInt(els.op.value, 10) / 100,
+      color: els.color.value,
+      blur: parseInt(els.blur.value, 10),
+      checker: els.checker.checked,
+      zoom: parseInt(els.zoom.value, 10)
+    };
+  }
+
+  function updateLabels() {
+    var p = getParams();
+    vals.ox.textContent = p.ox;
+    vals.oy.textContent = p.oy;
+    vals.skew.textContent = p.skew;
+    vals.op.textContent = Math.round(p.op * 100) + "%";
+    vals.blur.textContent = p.blur;
+    vals.zoom.textContent = p.zoom + "×";
+  }
+
+  function paintChecker(c, w, h) {
+    var cell = 12;
+    c.fillStyle = "#2a2e3a";
+    c.fillRect(0, 0, w, h);
+    c.fillStyle = "#343a49";
+    for (var y = 0; y < h; y += cell) {
+      for (var x = 0; x < w; x += cell) {
+        if (((x / cell) + (y / cell)) % 2 === 0) c.fillRect(x, y, cell, cell);
+      }
+    }
+  }
+
+  function drawShadow(c, p) {
+    var rgb = hexToRgb(p.color);
+    var alpha = p.op;
+    c.save();
+    if (p.blur > 0) c.filter = "blur(" + p.blur + "px)";
+    c.globalAlpha = alpha;
+    c.fillStyle = "rgb(" + rgb[0] + "," + rgb[1] + "," + rgb[2] + ")";
+
+    if (type === "drop") {
+      // offset silhouette behind sprite
+      c.drawImage(sprite, p.ox, p.oy);
+    } else {
+      // ground shadow: skewed, flattened silhouette anchored at sprite bottom
+      var cx = sw / 2;
+      var bottom = sh;
+      var skewRad = p.skew * Math.PI / 180;
+      var flatten = 0.35; // vertical squash for a "ground" look
+      c.translate(cx + p.ox, bottom + p.oy);
+      c.transform(1, 0, Math.tan(skewRad), flatten, 0, 0);
+      c.drawImage(sprite, -sw / 2, -sh);
+    }
+    c.restore();
+  }
+
+  function render() {
+    if (!sprite) return;
+    var p = getParams();
+    var z = p.zoom;
+    // canvas = sprite size + room for shadow offsets/blur
+    var pad = 80;
+    var W = (sw + pad * 2) * z;
+    var H = (sh + pad * 2) * z;
+    cv.width = W;
+    cv.height = H;
+    cv.style.width = Math.min(W, box.clientWidth - 8) + "px";
+    cv.style.height = "";
+    ctx.imageSmoothingEnabled = false;
+
+    if (p.checker) paintChecker(ctx, W, H);
+    else { ctx.fillStyle = "#0e1015"; ctx.fillRect(0, 0, W, H); }
+
+    ctx.save();
+    ctx.scale(z, z);
+    ctx.translate(pad, pad);
+    drawShadow(ctx, p);
+    ctx.globalAlpha = 1;
+    ctx.filter = "none";
+    ctx.drawImage(sprite, 0, 0);
+    ctx.restore();
+
+    dims.textContent = sw + "×" + sh + " px";
+  }
+
+  function loadFile(file) {
+    if (!file || !file.type || file.type.indexOf("image/") !== 0) {
+      status.textContent = "Please choose an image file.";
+      status.style.color = "#e07a7a";
+      return;
+    }
+    var url = URL.createObjectURL(file);
+    var img = new Image();
+    img.onload = function () {
+      sprite = img;
+      sw = img.naturalWidth;
+      sh = img.naturalHeight;
+      empty.style.display = "none";
+      cv.style.display = "block";
+      status.style.color = "var(--ok)";
+      status.textContent = "Loaded " + sw + "×" + sh + " px";
+      URL.revokeObjectURL(url);
+      render();
+    };
+    img.onerror = function () {
+      status.textContent = "Could not read that image.";
+      status.style.color = "#e07a7a";
+    };
+    img.src = url;
+  }
+
+  // file input + dropzone
+  drop.addEventListener("click", function () { fileInput.click(); });
+  fileInput.addEventListener("change", function (e) {
+    if (e.target.files && e.target.files[0]) loadFile(e.target.files[0]);
+  });
+  ["dragenter", "dragover"].forEach(function (ev) {
+    drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.add("over"); });
+  });
+  ["dragleave", "drop"].forEach(function (ev) {
+    drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.remove("over"); });
+  });
+  drop.addEventListener("drop", function (e) {
+    if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) loadFile(e.dataTransfer.files[0]);
+  });
+
+  // type segmented control
+  var seg = document.getElementById("typeSeg");
+  seg.addEventListener("click", function (e) {
+    var b = e.target.closest("button");
+    if (!b) return;
+    type = b.getAttribute("data-type");
+    Array.prototype.forEach.call(seg.children, function (c) {
+      c.classList.toggle("active", c === b);
+    });
+    document.querySelector(".ground-only").style.display = (type === "ground") ? "block" : "none";
+    render();
+  });
+
+  // sliders / color / checkbox
+  Object.keys(els).forEach(function (k) {
+    els[k].addEventListener("input", function () {
+      updateLabels();
+      render();
+    });
+  });
+
+  // download
+  document.getElementById("download").addEventListener("click", function () {
+    if (!sprite) { status.textContent = "Load a sprite first."; status.style.color = "#e07a7a"; return; }
+    // render at 1x into an offscreen canvas for a clean export
+    var p = getParams();
+    var pad = 80;
+    var off = document.createElement("canvas");
+    off.width = (sw + pad * 2);
+    off.height = (sh + pad * 2);
+    var oc = off.getContext("2d");
+    oc.imageSmoothingEnabled = false;
+    if (p.checker) paintChecker(oc, off.width, off.height);
+    else { oc.fillStyle = "#0e1015"; oc.fillRect(0, 0, off.width, off.height); }
+    oc.save();
+    oc.translate(pad, pad);
+    drawShadow(oc, p);
+    oc.globalAlpha = 1;
+    oc.filter = "none";
+    oc.drawImage(sprite, 0, 0);
+    oc.restore();
+    off.toBlob(function (blob) {
+      if (!blob) { status.textContent = "Export failed."; status.style.color = "#e07a7a"; return; }
+      var a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "sprite-shadow.png";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(function () { URL.revokeObjectURL(a.href); }, 4000);
+      status.style.color = "var(--ok)";
+      status.textContent = "Downloaded sprite-shadow.png";
+    }, "image/png");
+  });
+
+  // reset
+  document.getElementById("reset").addEventListener("click", function () {
+    els.ox.value = 6; els.oy.value = 8; els.skew.value = 18;
+    els.op.value = 45; els.color.value = "#000000"; els.blur.value = 0;
+    els.checker.checked = true; els.zoom.value = 8;
+    updateLabels();
+    render();
+  });
+
+  window.addEventListener("resize", render);
+  updateLabels();
+})();
+</script>
+</body>
+</html>
