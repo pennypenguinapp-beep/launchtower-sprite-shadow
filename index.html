@@ -3,685 +3,1040 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sprite Shadow Generator — LaunchTower</title>
+<title>LaunchTower — free games, pixel art &amp; tools</title>
+<meta name="description" content="LaunchTower: free browser games, pixel-art asset packs, and handy web tools. Made fast, made free.">
 <style>
-  :root {
-    --bg: #14161c;
-    --panel: #1d2029;
-    --panel2: #232734;
-    --border: #303545;
-    --text: #e8eaf0;
-    --muted: #9aa1b5;
-    --accent: #5b8cff;
-    --accent2: #3f6fe0;
-    --ok: #43c98a;
+  :root{
+    --bg:#0b0e14;
+    --bg2:#11151f;
+    --card:#151b28;
+    --card-hover:#1a2233;
+    --border:#232c3f;
+    --text:#e8ecf4;
+    --muted:#9aa5bc;
+    --accent:#5eead4;
+    --accent2:#818cf8;
+    --btn:#1f2a44;
+    --btn-hover:#2a3a63;
   }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 20px 14px 40px;
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:radial-gradient(1200px 600px at 50% -10%, #16203a 0%, var(--bg) 55%) fixed, var(--bg);
+    color:var(--text);
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
   }
-  header { text-align: center; margin-bottom: 18px; max-width: 720px; }
-  h1 { font-size: 1.45rem; font-weight: 700; letter-spacing: .2px; }
-  h1 .brand { color: var(--accent); }
-  .sub { color: var(--muted); font-size: .85rem; margin-top: 6px; line-height: 1.5; }
-  .wrap {
-    display: grid;
-    grid-template-columns: 300px 1fr;
-    gap: 16px;
-    width: 100%;
-    max-width: 980px;
-    align-items: start;
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 20px}
+
+  header.site{
+    position:sticky;top:0;z-index:10;
+    background:rgba(11,14,20,.82);
+    backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--border);
   }
-  @media (max-width: 760px) {
-    .wrap { grid-template-columns: 1fr; }
+  .nav{display:flex;align-items:center;justify-content:space-between;height:56px}
+  .logo{font-weight:800;letter-spacing:.4px;font-size:1.05rem}
+  .logo span{color:var(--accent)}
+  .nav a.link{color:var(--muted);margin-left:18px;font-size:.92rem}
+  .nav a.link:hover{color:var(--text);text-decoration:none}
+
+  .hero{text-align:center;padding:72px 0 56px}
+  .hero h1{
+    font-size:clamp(2rem,5.5vw,3.4rem);
+    font-weight:850;letter-spacing:-.5px;
+    background:linear-gradient(90deg,var(--accent),var(--accent2));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
   }
-  .panel {
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 16px;
+  .hero p{color:var(--muted);max-width:560px;margin:14px auto 0;font-size:1.05rem}
+  .hero .cta{
+    display:inline-block;margin-top:26px;padding:12px 22px;border-radius:10px;
+    background:var(--btn);color:var(--text);font-weight:600;border:1px solid var(--border);
   }
-  .panel h2 {
-    font-size: .72rem;
-    text-transform: uppercase;
-    letter-spacing: 1.2px;
-    color: var(--muted);
-    margin-bottom: 12px;
+  .hero .cta:hover{background:var(--btn-hover);text-decoration:none}
+
+  section{padding:44px 0}
+  .sec-head{display:flex;align-items:baseline;gap:12px;margin-bottom:22px}
+  .sec-head h2{font-size:1.5rem;font-weight:750}
+  .sec-head .tag{
+    font-size:.72rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--accent);border:1px solid var(--border);border-radius:999px;padding:4px 10px;
   }
-  .row { margin-bottom: 14px; }
-  .row label { display: block; font-size: .8rem; color: var(--muted); margin-bottom: 6px; }
-  .row .val { color: var(--text); font-weight: 600; float: right; }
-  input[type=range] {
-    width: 100%;
-    accent-color: var(--accent);
-    height: 22px;
-    cursor: pointer;
+  .sec-head .desc{color:var(--muted);font-size:.92rem;margin-left:auto}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:18px}
+  .card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:22px;
+    display:flex;flex-direction:column;gap:12px;
+    transition:transform .15s ease, background .15s ease, border-color .15s ease;
   }
-  input[type=color] {
-    width: 100%;
-    height: 34px;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    background: var(--panel2);
-    cursor: pointer;
-    padding: 2px;
+  .card:hover{transform:translateY(-3px);background:var(--card-hover);border-color:#2f3b58}
+  .card .icon{
+    width:44px;height:44px;border-radius:11px;display:flex;align-items:center;justify-content:center;
+    font-size:1.4rem;background:linear-gradient(135deg,#1c2740,#141b2c);border:1px solid var(--border);
   }
-  .seg {
-    display: flex;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    overflow: hidden;
+  .card h3{font-size:1.12rem;font-weight:720}
+  .card p{color:var(--muted);font-size:.94rem;flex:1}
+  .card .row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:4px}
+  .badge{font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+  .btn{
+    display:inline-block;padding:9px 16px;border-radius:9px;font-size:.9rem;font-weight:650;
+    background:var(--btn);color:var(--text);border:1px solid var(--border);white-space:nowrap;
   }
-  .seg button {
-    flex: 1;
-    background: var(--panel2);
-    color: var(--muted);
-    border: none;
-    padding: 8px 4px;
-    font-size: .8rem;
-    cursor: pointer;
-    font-weight: 600;
+  .btn:hover{background:var(--btn-hover);text-decoration:none}
+  .btn.primary{background:linear-gradient(90deg,#0f766e,#4338ca);border-color:transparent}
+  .btn.primary:hover{filter:brightness(1.15)}
+
+  footer{
+    border-top:1px solid var(--border);
+    margin-top:30px;padding:34px 0 46px;text-align:center;color:var(--muted);font-size:.92rem;
   }
-  .seg button + button { border-left: 1px solid var(--border); }
-  .seg button.active { background: var(--accent2); color: #fff; }
-  .check { display: flex; align-items: center; gap: 8px; font-size: .82rem; color: var(--text); cursor: pointer; user-select: none; }
-  .check input { accent-color: var(--accent); width: 16px; height: 16px; cursor: pointer; }
-  .btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    width: 100%;
-    background: var(--accent);
-    color: #fff;
-    border: none;
-    border-radius: 9px;
-    padding: 11px 14px;
-    font-size: .9rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: background .15s;
+  footer .brand{color:var(--text);font-weight:700}
+  footer .made{margin-top:8px;font-size:.82rem;opacity:.75}
+
+  @media (max-width:560px){
+    .hero{padding:52px 0 40px}
+    .sec-head .desc{display:none}
+    .nav a.link{margin-left:12px;font-size:.85rem}
   }
-  .btn:hover { background: var(--accent2); }
-  .btn.ghost { background: var(--panel2); color: var(--text); border: 1px solid var(--border); }
-  .btn.ghost:hover { background: #2b3040; }
-  .drop {
-    border: 2px dashed var(--border);
-    border-radius: 10px;
-    padding: 18px 12px;
-    text-align: center;
-    color: var(--muted);
-    font-size: .82rem;
-    cursor: pointer;
-    transition: border-color .15s, background .15s;
-    margin-bottom: 14px;
-  }
-  .drop:hover, .drop.over { border-color: var(--accent); background: rgba(91,140,255,.06); color: var(--text); }
-  .drop b { color: var(--accent); }
-  .stage {
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 16px;
-    min-height: 380px;
-    display: flex;
-    flex-direction: column;
-  }
-  .stage-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; gap: 10px; flex-wrap: wrap; }
-  .stage-top h2 { margin: 0; }
-  .canvas-box {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: auto;
-    border-radius: 10px;
-    background: #0e1015;
-    min-height: 260px;
-    max-height: 520px;
-  }
-  canvas { image-rendering: pixelated; display: block; }
-  .empty {
-    color: var(--muted);
-    font-size: .85rem;
-    text-align: center;
-    padding: 30px 10px;
-    line-height: 1.6;
-  }
-  .empty .big { font-size: 2rem; margin-bottom: 10px; opacity: .7; }
-  .hint { color: var(--muted); font-size: .74rem; margin-top: 10px; text-align: center; }
-  footer { margin-top: 26px; text-align: center; color: var(--muted); font-size: .78rem; }
-  footer a { color: var(--accent); text-decoration: none; font-weight: 600; }
-  footer a:hover { text-decoration: underline; }
-  .status { font-size: .75rem; color: var(--ok); margin-top: 8px; text-align: center; min-height: 1em; }
-  #overlay {
-    position: fixed; inset: 0; z-index: 50;
-    background: rgba(10,12,17,.88);
-    backdrop-filter: blur(3px);
-    display: flex; align-items: center; justify-content: center;
-    text-align: center; padding: 24px;
-  }
-  #overlay .card { max-width: 520px; }
-  #overlay .logo { font-size: 3rem; margin-bottom: 12px; }
-  #overlay h2 { font-size: 1.7rem; font-weight: 800; margin-bottom: 10px; }
-  #overlay h2 .brand { color: var(--accent); }
-  #overlay p { color: var(--muted); font-size: .95rem; line-height: 1.6; margin-bottom: 8px; }
-  #overlay .keys { color: var(--muted); font-size: .78rem; margin-bottom: 20px; }
-  #overlay .keys kbd {
-    background: var(--panel2); border: 1px solid var(--border); border-radius: 5px;
-    padding: 2px 7px; font-family: inherit; font-size: .74rem; color: var(--text); margin: 0 2px;
-  }
-  #overlay .bigbtn {
-    display: inline-block; background: var(--accent); color: #fff; border: none;
-    border-radius: 12px; padding: 15px 44px; font-size: 1.1rem; font-weight: 800;
-    cursor: pointer; letter-spacing: .5px; transition: background .15s, transform .1s;
-  }
-  #overlay .bigbtn:hover { background: var(--accent2); transform: translateY(-1px); }
-  #overlay .scoreline { font-size: 1.05rem; margin-bottom: 6px; color: var(--text); font-weight: 600; }
-  #overlay .newbest { color: var(--ok); font-weight: 800; font-size: .9rem; margin-bottom: 14px; letter-spacing: 1px; }
-  #pauseBtn {
-    position: fixed; top: 14px; right: 14px; z-index: 40;
-    background: var(--panel2); color: var(--text); border: 1px solid var(--border);
-    border-radius: 9px; padding: 8px 14px; font-size: .8rem; font-weight: 700; cursor: pointer;
-  }
-  #pauseBtn:hover { background: #2b3040; }
 </style>
 </head>
 <body>
-<div id="overlay">
-  <div class="card">
-    <div class="logo">🎨</div>
-    <h2>Sprite Shadow <span class="brand">Generator</span></h2>
-    <p>Drop a sprite in, tune the shadow, export a clean PNG — 100% in your browser.</p>
-    <p class="keys"><kbd>D</kbd>/<kbd>G</kbd> shadow type · <kbd>O</kbd> opacity · <kbd>B</kbd> blur · <kbd>1</kbd>–<kbd>9</kbd> zoom · <kbd>P</kbd> pause</p>
-    <button class="bigbtn" id="playBtn">▶&nbsp; PLAY</button>
+
+<header class="site">
+  <div class="wrap nav">
+    <div class="logo">Launch<span>Tower</span></div>
+    <nav>
+      <a class="link" href="#games">Games</a>
+      <a class="link" href="#tools">Tools</a>
+      <a class="link" href="#assets">Assets</a>
+    </nav>
   </div>
-</div>
-<button id="pauseBtn" style="display:none">⏸ Pause</button>
-<header>
-  <h1>Sprite Shadow <span class="brand">Generator</span></h1>
-  <p class="sub">Add a drop shadow or a skewed ground shadow to any sprite. Tune offset, opacity, color and skew, preview at zoom, then download a clean PNG. Runs 100% in your browser — nothing is uploaded.</p>
 </header>
 
-<div class="wrap">
-  <div class="panel">
-    <h2>Controls</h2>
-
-    <div class="drop" id="drop">
-      <b>Click or drop</b> a sprite here<br>
-      <span style="font-size:.72rem;opacity:.8">PNG / WebP / GIF / JPG</span>
-      <input type="file" id="file" accept="image/*" hidden>
-    </div>
-
-    <button class="btn ghost" id="loadExample" style="margin-bottom:14px">Load example sprite</button>
-
-    <div class="row">
-      <label>Shadow type</label>
-      <div class="seg" id="typeSeg">
-        <button data-type="drop" class="active">Drop</button>
-        <button data-type="ground">Ground</button>
-      </div>
-    </div>
-
-    <div class="row">
-      <label>Offset X <span class="val" id="oxVal">6</span></label>
-      <input type="range" id="ox" min="-64" max="64" value="6">
-    </div>
-
-    <div class="row">
-      <label>Offset Y <span class="val" id="oyVal">8</span></label>
-      <input type="range" id="oy" min="-64" max="64" value="8">
-    </div>
-
-    <div class="row ground-only" style="display:none">
-      <label>Skew (°) <span class="val" id="skewVal">18</span></label>
-      <input type="range" id="skew" min="-60" max="60" value="18">
-    </div>
-
-    <div class="row">
-      <label>Opacity <span class="val" id="opVal">45%</span></label>
-      <input type="range" id="op" min="0" max="100" value="45">
-    </div>
-
-    <div class="row">
-      <label>Shadow color</label>
-      <input type="color" id="color" value="#000000">
-    </div>
-
-    <div class="row">
-      <label>Blur <span class="val" id="blurVal">0</span></label>
-      <input type="range" id="blur" min="0" max="16" value="0">
-    </div>
-
-    <div class="row">
-      <label class="check"><input type="checkbox" id="checker" checked> Checkerboard background</label>
-    </div>
-
-    <div class="row">
-      <label>Preview zoom <span class="val" id="zoomVal">8×</span></label>
-      <input type="range" id="zoom" min="1" max="32" value="8">
-    </div>
-
-    <button class="btn" id="download">Download PNG</button>
-    <button class="btn ghost" id="reset" style="margin-top:8px">Reset</button>
-    <div class="status" id="status"></div>
+<main class="wrap">
+  <div class="hero">
+    <h1>LaunchTower</h1>
+    <p>Free games, pixel art &amp; tools — made fast, made free. Play in your browser, grab assets, and use handy tools. No sign-up, no paywall.</p>
+    <a class="cta" href="#games">Explore the catalog &darr;</a>
   </div>
 
-  <div class="stage">
-    <div class="stage-top">
-      <h2 style="font-size:.72rem;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted)">Preview</h2>
-      <span id="dims" style="font-size:.75rem;color:var(--muted)"></span>
+  <section id="games">
+    <div class="sec-head">
+      <span class="tag">Play</span>
+      <h2>Games</h2>
+      <span class="desc">Browser games — click and play, no install.</span>
     </div>
-    <div class="canvas-box" id="box">
-      <div class="empty" id="empty">
-        <div class="big">🎨</div>
-        Load a sprite to start adding shadows.<br>
-        Transparent PNGs work best.
+    <div class="grid">
+      <div class="card">
+        <div class="icon">🚀</div>
+        <h3>Star Drift</h3>
+        <p>A fast, neon space-drift arcade game. Dodge, weave, and chase high scores in your browser.</p>
+        <div class="row">
+          <span class="badge">Browser game</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-star-drift/" target="_blank" rel="noopener">Play now &rarr;</a>
+        </div>
       </div>
-      <canvas id="cv" style="display:none"></canvas>
+      <div class="card">
+        <div class="icon">🌊</div>
+        <h3>Neon Cascade</h3>
+        <p>Pop the glowing blocks before they escape. Tight controls, satisfying flow, runs anywhere.</p>
+        <div class="row">
+          <span class="badge">Browser game</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-neon-cascade/" target="_blank" rel="noopener">Play now &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🧱</div>
+        <h3>Neon Breaker</h3>
+        <p>Smash the glowing grid. 5 levels. 3 lives.</p>
+        <div class="row">
+          <span class="badge">Browser game</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-neon-breaker/" target="_blank" rel="noopener">Play now &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🐍</div>
+        <h3>Pixel Snake</h3>
+        <p>Ready?</p>
+        <div class="row">
+          <span class="badge">Browser game</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-pixel-snake/" target="_blank" rel="noopener">Play now &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">☄️</div>
+        <h3>Asteroid Run</h3>
+        <p>Free browser game by LaunchTower — runs entirely in your browser, nothing is uploaded.</p>
+        <div class="row">
+          <span class="badge">Browser game</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-asteroid-run/" target="_blank" rel="noopener">Play now &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🎮</div>
+        <h3>Pixel Pong</h3>
+        <p>Free browser game by LaunchTower — runs entirely in your browser, nothing is uploaded.</p>
+        <div class="row">
+          <span class="badge">Browser game</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-pixel-pong/" target="_blank" rel="noopener">Play now &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🎮</div>
+        <h3>Minefield</h3>
+        <p>Free browser game by LaunchTower — runs entirely in your browser, nothing is uploaded.</p>
+        <div class="row">
+          <span class="badge">Browser game</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-minefield/" target="_blank" rel="noopener">Play now &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🎮</div>
+        <h3>Block Drop</h3>
+        <p>Stack the falling pieces &amp;mdash; clear lines to score. &amp;larr;/&amp;rarr; move &amp;middot; &amp;uarr; rotate &amp;middot; space hard drop C hold &amp;middot; P pause &amp;middot; swipe on touch</p>
+        <div class="row">
+          <span class="badge">Browser game</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-block-drop/" target="_blank" rel="noopener">Play now &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🎮</div>
+        <h3>Pixel Invaders</h3>
+        <p>Alien rows are marching down.Shoot them. Protect the shields.Survive the boss every 3rd wave.</p>
+        <div class="row">
+          <span class="badge">Browser game</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-pixel-invaders/" target="_blank" rel="noopener">Play now &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🎮</div>
+        <h3>Memory Match</h3>
+        <p>Flip cards to find matching pairs. Fewer moves + faster time = better score. Good luck!</p>
+        <div class="row">
+          <span class="badge">Browser game</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-memory-match/" target="_blank" rel="noopener">Play now &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🎮</div>
+        <h3>Pixel Hopper</h3>
+        <p>Free browser game by LaunchTower — runs entirely in your browser, nothing is uploaded.</p>
+        <div class="row">
+          <span class="badge">Browser game</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-pixel-hopper/" target="_blank" rel="noopener">Play now &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🎮</div>
+        <h3>Neon Dash</h3>
+        <p>Free browser game by LaunchTower — runs entirely in your browser, nothing is uploaded.</p>
+        <div class="row">
+          <span class="badge">Browser game</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-neon-dash/" target="_blank" rel="noopener">Play now &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🎮</div>
+        <h3>Gem Grid</h3>
+        <p>Swap adjacent gems to line up 3 or more. Bigger matches and cascades score more.</p>
+        <div class="row">
+          <span class="badge">Browser game</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-gem-grid/" target="_blank" rel="noopener">Play now &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🎮</div>
+        <h3>Crate Pusher</h3>
+        <p>Free browser game by LaunchTower — runs entirely in your browser, nothing is uploaded.</p>
+        <div class="row">
+          <span class="badge">Browser game</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-crate-pusher/" target="_blank" rel="noopener">Play now &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🎮</div>
+        <h3>Tile Merge</h3>
+        <p>No moves left.</p>
+        <div class="row">
+          <span class="badge">Browser game</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-tile-merge/" target="_blank" rel="noopener">Play now &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🎮</div>
+        <h3>Tower Guard</h3>
+        <p>=pathPx.length-1){ e.dead=true; lives-= e.boss?5:1; burst(e.x,e.y,&quot;#ff5d5d&quot;,10); addFloater(e.x,e.y,&quot;-1&quot;,&quot;#ff5d5d&quot;); if(lives0) continue; // target: furthest along path w</p>
+        <div class="row">
+          <span class="badge">Browser game</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-tower-guard/" target="_blank" rel="noopener">Play now &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🎮</div>
+        <h3>Mole Mash</h3>
+        <p>60 seconds. 3x3 holes. Moles pop up faster and faster.Each hit in a row raises your combo multiplier — miss and it resets.How high can you mash?</p>
+        <div class="row">
+          <span class="badge">Browser game</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-mole-mash/" target="_blank" rel="noopener">Play now &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🎮</div>
+        <h3>Pattern Echo</h3>
+        <p>Free browser game by LaunchTower — runs entirely in your browser, nothing is uploaded.</p>
+        <div class="row">
+          <span class="badge">Browser game</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-pattern-echo/" target="_blank" rel="noopener">Play now &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🎮</div>
+        <h3>Pixel Sudoku</h3>
+        <p>Time: 0:00</p>
+        <div class="row">
+          <span class="badge">Browser game</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-pixel-sudoku/" target="_blank" rel="noopener">Play now &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🎮</div>
+        <h3>Cave Diver</h3>
+        <p>Free browser game by LaunchTower — runs entirely in your browser, nothing is uploaded.</p>
+        <div class="row">
+          <span class="badge">Browser game</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-cave-diver/" target="_blank" rel="noopener">Play now &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🎮</div>
+        <h3>Pixel Picross</h3>
+        <p>Fill the cells so each row and column matches its number clues. Every number is the length of a solid block of filled cells in that line.</p>
+        <div class="row">
+          <span class="badge">Browser game</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-pixel-picross/" target="_blank" rel="noopener">Play now &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🎮</div>
+        <h3>Bubble Pop</h3>
+        <p>Aim with mouse, touch, or arrow keys — pop 3+ matching bubbles before the ceiling drops.</p>
+        <div class="row">
+          <span class="badge">Browser game</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-bubble-pop/" target="_blank" rel="noopener">Play now &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🎮</div>
+        <h3>Maze Runner</h3>
+        <p>Free browser game by LaunchTower — runs entirely in your browser, nothing is uploaded.</p>
+        <div class="row">
+          <span class="badge">Browser game</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-maze-runner/" target="_blank" rel="noopener">Play now &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🎮</div>
+        <h3>Pixel Racer</h3>
+        <p>Steer to dodge traffic and grab fuel cans. The road gets faster the longer you survive.</p>
+        <div class="row">
+          <span class="badge">Browser game</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-pixel-racer/" target="_blank" rel="noopener">Play now &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🎮</div>
+        <h3>Lights Out</h3>
+        <p>Free browser game by LaunchTower — runs entirely in your browser, nothing is uploaded.</p>
+        <div class="row">
+          <span class="badge">Browser game</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-lights-out/" target="_blank" rel="noopener">Play now &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🎮</div>
+        <h3>Connect Four</h3>
+        <p>Drop discs, line up four. Beat the AI or a friend.</p>
+        <div class="row">
+          <span class="badge">Browser game</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-connect-four/" target="_blank" rel="noopener">Play now &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🎮</div>
+        <h3>Word Grid</h3>
+        <p>Free browser game by LaunchTower — runs entirely in your browser, nothing is uploaded.</p>
+        <div class="row">
+          <span class="badge">Browser game</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-word-grid/" target="_blank" rel="noopener">Play now &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🎮</div>
+        <h3>Reaction Pixel</h3>
+        <p>Free browser game by LaunchTower — runs entirely in your browser, nothing is uploaded.</p>
+        <div class="row">
+          <span class="badge">Browser game</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-reaction-pixel/" target="_blank" rel="noopener">Play now &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🎮</div>
+        <h3>Pixel Solitaire</h3>
+        <p>Free browser game by LaunchTower — runs entirely in your browser, nothing is uploaded.</p>
+        <div class="row">
+          <span class="badge">Browser game</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-pixel-solitaire/" target="_blank" rel="noopener">Play now &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🎮</div>
+        <h3>Typing Sprint</h3>
+        <p>Pixel words fall from the sky. Type each word exactly before it hits the floor. Speed ramps up every level. One wrong letter and the word turns red — finish it to save it</p>
+        <div class="row">
+          <span class="badge">Browser game</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-typing-sprint/" target="_blank" rel="noopener">Play now &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🎮</div>
+        <h3>Color Flood</h3>
+        <p>Free browser game by LaunchTower — runs entirely in your browser, nothing is uploaded.</p>
+        <div class="row">
+          <span class="badge">Browser game</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-color-flood/" target="_blank" rel="noopener">Play now &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🎮</div>
+        <h3>Slide Puzzle</h3>
+        <p>Free browser game by LaunchTower — runs entirely in your browser, nothing is uploaded.</p>
+        <div class="row">
+          <span class="badge">Browser game</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-slide-puzzle/" target="_blank" rel="noopener">Play now &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🎮</div>
+        <h3>Block Stack</h3>
+        <p>A block slides across the top. Tap, click, or press space to drop it.Overhang gets cut off — perfect drops (±4px) widen the tower.Stack as high as you can.</p>
+        <div class="row">
+          <span class="badge">Browser game</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-block-stack/" target="_blank" rel="noopener">Play now &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🎮</div>
+        <h3>Pixel Golf</h3>
+        <p>Free browser game by LaunchTower — runs entirely in your browser, nothing is uploaded.</p>
+        <div class="row">
+          <span class="badge">Browser game</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-pixel-golf/" target="_blank" rel="noopener">Play now &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🎮</div>
+        <h3>Orbit Dodge</h3>
+        <p>You orbit the core. Tap / click / space to reverse direction.Dodge the incoming pixel shards. Speed rises over time.</p>
+        <div class="row">
+          <span class="badge">Browser game</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-orbit-dodge/" target="_blank" rel="noopener">Play now &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🎮</div>
+        <h3>Rhythm Tap</h3>
+        <p>Notes fall down 4 lanes to a beat generated live in your browser — no audio files, just WebAudio. Tap the lane when a note crosses the line.</p>
+        <div class="row">
+          <span class="badge">Browser game</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-rhythm-tap/" target="_blank" rel="noopener">Play now &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🎮</div>
+        <h3>Pixel Archery</h3>
+        <p>Drag from the archer to draw the bow. Longer drag = more power. Watch the wind — it bends every arrow in flight. 10 arrows per round. Bullseye = 50 pts, ring = 30, outer </p>
+        <div class="row">
+          <span class="badge">Browser game</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-pixel-archery/" target="_blank" rel="noopener">Play now &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🎮</div>
+        <h3>Pixel Fishing</h3>
+        <p>Free browser game by LaunchTower — runs entirely in your browser, nothing is uploaded.</p>
+        <div class="row">
+          <span class="badge">Browser game</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-pixel-fishing/" target="_blank" rel="noopener">Play now &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🎮</div>
+        <h3>Frog Hop</h3>
+        <p>Cross the road and the river to reach the lily pads. Ride logs to cross water — don&#x27;t fall in! Each level gets faster. 3 lives.</p>
+        <div class="row">
+          <span class="badge">Browser game</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-frog-hop/" target="_blank" rel="noopener">Play now &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🎮</div>
+        <h3>Tank Duel</h3>
+        <p>Free browser game by LaunchTower — runs entirely in your browser, nothing is uploaded.</p>
+        <div class="row">
+          <span class="badge">Browser game</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-tank-duel/" target="_blank" rel="noopener">Play now &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🎮</div>
+        <h3>Pixel Pinball</h3>
+        <p>Free browser game by LaunchTower — runs entirely in your browser, nothing is uploaded.</p>
+        <div class="row">
+          <span class="badge">Browser game</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-pixel-pinball/" target="_blank" rel="noopener">Play now &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🎮</div>
+        <h3>Meteor Miner</h3>
+        <p>You reached ${d}m · record ${S.record}m</p>
+        <div class="row">
+          <span class="badge">Browser game</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-meteor-miner/" target="_blank" rel="noopener">Play now &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🎮</div>
+        <h3>Pixel Volley</h3>
+        <p>Free browser game by LaunchTower — runs entirely in your browser, nothing is uploaded.</p>
+        <div class="row">
+          <span class="badge">Browser game</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-pixel-volley/" target="_blank" rel="noopener">Play now &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🎮</div>
+        <h3>Ninja Slice</h3>
+        <p>Swipe to slice the flying pixel fruit. Chain slices for combos. Don&#x27;t slice the bombs — and don&#x27;t let fruit hit the floor!</p>
+        <div class="row">
+          <span class="badge">Browser game</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-ninja-slice/" target="_blank" rel="noopener">Play now &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🎮</div>
+        <h3>Pixel Jigsaw</h3>
+        <p>Reassemble the pixel scene — drag pieces to snap them home</p>
+        <div class="row">
+          <span class="badge">Browser game</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-pixel-jigsaw/" target="_blank" rel="noopener">Play now &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🎮</div>
+        <h3>Lane Merge</h3>
+        <p>Tap a lane to release its car into the junction. Cars merge toward the exit at the bottom. Don&#x27;t let two cars collide — waves get denser.</p>
+        <div class="row">
+          <span class="badge">Browser game</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-lane-merge/" target="_blank" rel="noopener">Play now &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🎮</div>
+        <h3>Dungeon Crawl</h3>
+        <p>Explore the procedurally generated depths. Bump enemies to attack. Grab potions, find keys, open doors, and descend the stairs. How deep can you go?</p>
+        <div class="row">
+          <span class="badge">Browser game</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-dungeon-crawl/" target="_blank" rel="noopener">Play now &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🎮</div>
+        <h3>Rocket Lander</h3>
+        <p>Guide the lander onto a flat pad.Soft landing: low speed, near-vertical, gentle rotation.Each level: less fuel, trickier terrain, more pads to avoid cliffs.</p>
+        <div class="row">
+          <span class="badge">Browser game</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-rocket-lander/" target="_blank" rel="noopener">Play now &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🎮</div>
+        <h3>Pixel Bowling</h3>
+        <p>Free browser game by LaunchTower — runs entirely in your browser, nothing is uploaded.</p>
+        <div class="row">
+          <span class="badge">Browser game</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-pixel-bowling/" target="_blank" rel="noopener">Play now &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🎮</div>
+        <h3>Word Ladder</h3>
+        <p>Word Ladder — transform one word into another, one letter at a time. Free browser tool by LaunchTower.</p>
+        <div class="row">
+          <span class="badge">Browser game</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-word-ladder/" target="_blank" rel="noopener">Play now &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🎮</div>
+        <h3>Ice Slide</h3>
+        <p>Ice Slide — steer, dodge and speed-run icy tracks in your browser. Free browser tool by LaunchTower.</p>
+        <div class="row">
+          <span class="badge">Browser game</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-ice-slide/" target="_blank" rel="noopener">Play now &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🎮</div>
+        <h3>Balloon Pop</h3>
+        <p>Tap / click the balloons before they float away. Build combos for bonus points — but DON&#x27;T tap the spiky mines! 60 seconds. How high can you go?</p>
+        <div class="row">
+          <span class="badge">Browser game</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-balloon-pop/" target="_blank" rel="noopener">Play now &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🎮</div>
+        <h3>Space Trader</h3>
+        <p>Buy low, sell high across 6 distant planets. Prices fluctuate daily. Travel costs fuel. Random events can make or break your run. Survive 30 days. Maximize your net worth</p>
+        <div class="row">
+          <span class="badge">Browser game</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-space-trader/" target="_blank" rel="noopener">Play now &rarr;</a>
+        </div>
+      </div>
     </div>
-    <div class="hint">Drop shadow = offset copy behind the sprite · Ground shadow = skewed silhouette under it</div>
-  </div>
-</div>
+  </section>
+
+  <section id="tools">
+    <div class="sec-head">
+      <span class="tag">Use</span>
+      <h2>Tools</h2>
+      <span class="desc">Free web tools — drop a file in, get results out.</span>
+    </div>
+    <div class="grid">
+      <div class="card">
+        <div class="icon">🎨</div>
+        <h3>Pixel Palette Extractor</h3>
+        <p>Drop any image and extract a clean, quantized color palette with HEX/RGB, CSS variables, and .gpl export.</p>
+        <div class="row">
+          <span class="badge">Free web tool</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-palette-extractor/" target="_blank" rel="noopener">Open tool &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🔪</div>
+        <h3>Sprite Sheet Slicer</h3>
+        <p>Slice any sprite sheet into individual tiles with a live grid preview, then download them one by one or all at once.</p>
+        <div class="row">
+          <span class="badge">Free web tool</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-sprite-slicer/" target="_blank" rel="noopener">Open tool &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🌈</div>
+        <h3>Color Ramp Generator</h3>
+        <p>Pick a base color and get an N-step shaded ramp with hue shift. Copy the hex list or CSS vars, export .gpl or .png.</p>
+        <div class="row">
+          <span class="badge">Free web tool</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-color-ramp/" target="_blank" rel="noopener">Open tool &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🎞️</div>
+        <h3>Sprite Animation Previewer</h3>
+        <p>Load a sprite sheet, set frame size and FPS, and preview the animation frame-by-frame at pixel-perfect zoom. Export frames as PNG.</p>
+        <div class="row">
+          <span class="badge">Free web tool</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-sprite-animation-previewer/" target="_blank" rel="noopener">Open tool &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🧩</div>
+        <h3>Tileset Autotile Viewer</h3>
+        <p>Paint a small map, see which 4-bit (16-tile) or 8-bit (47-tile) autotile index each cell resolves to, and export the index table as JSON.</p>
+        <div class="row">
+          <span class="badge">Free web tool</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-autotile-viewer/" target="_blank" rel="noopener">Open tool &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">▦</div>
+        <h3>Dither Pattern Generator</h3>
+        <p>Ordered (Bayer) &amp;amp; noise dither tiles for pixel art. Pick colors, tune coverage, export a clean 1px-per-cell PNG tile.</p>
+        <div class="row">
+          <span class="badge">Free web tool</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-dither-gen/" target="_blank" rel="noopener">Open tool &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🔤</div>
+        <h3>Pixel Font Preview</h3>
+        <p>Type text, render it with a built-in 5×7 bitmap font, pick scale &amp;amp; colors, export a clean PNG. No assets, no network.</p>
+        <div class="row">
+          <span class="badge">Free web tool</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-pixel-font-preview/" target="_blank" rel="noopener">Open tool &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🔁</div>
+        <h3>Palette Swap Tool</h3>
+        <p>Drop a sprite / image hereor click to browse (PNG, JPG, GIF, WebP)</p>
+        <div class="row">
+          <span class="badge">Free web tool</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-palette-swap/" target="_blank" rel="noopener">Open tool &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">⭕</div>
+        <h3>Sprite Outline Tool</h3>
+        <p>Upload a transparent sprite, add a crisp 1px or 2px outline in any color — inside or outside the pixels — preview at zoom, download as PNG. Runs 100% in your browser.</p>
+        <div class="row">
+          <span class="badge">Free web tool</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-sprite-outline/" target="_blank" rel="noopener">Open tool &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">📦</div>
+        <h3>Sprite Sheet Packer</h3>
+        <p>Drop multiple PNG frames and pack them into one sprite sheet — grid or row, with padding, transparent-edge trimming, and a JSON atlas of frame rects.</p>
+        <div class="row">
+          <span class="badge">Free web tool</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-sheet-packer/" target="_blank" rel="noopener">Open tool &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🔍</div>
+        <h3>Pixel Art Upscaler</h3>
+        <p>Upscale pixel art 2x-8x with crisp nearest-neighbour scaling. No blur, no artifacts. Free browser tool.</p>
+        <div class="row">
+          <span class="badge">Free web tool</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-pixel-upscaler/" target="_blank" rel="noopener">Open tool &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🚧</div>
+        <h3>Tilemap Collision Editor</h3>
+        <p>Upload a tileset, mark tiles as solid, one-way, or hazard, and export the collision mask as JSON or CSV.</p>
+        <div class="row">
+          <span class="badge">Free web tool</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-collision-editor/" target="_blank" rel="noopener">Open tool &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🌫️</div>
+        <h3>Noise Texture Generator</h3>
+        <p>Seeded value / Perlin-style noise for pixel art and game textures. Tileable, quantizable, PNG export. All in your browser.</p>
+        <div class="row">
+          <span class="badge">Free web tool</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-noise-texture/" target="_blank" rel="noopener">Open tool &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🔄</div>
+        <h3>Aseprite Palette Converter</h3>
+        <p>Free online palette converter for pixel artists: paste hex lists or upload .gpl/.hex/.pal files, preview swatches, and export to .gpl, .hex, .txt, CSS variables, or JSON.</p>
+        <div class="row">
+          <span class="badge">Free web tool</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-palette-converter/" target="_blank" rel="noopener">Open tool &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🔲</div>
+        <h3>Seamless Tile Checker</h3>
+        <p>Upload a tile, repeat it in a grid, and hunt down seams before they ship in your game.</p>
+        <div class="row">
+          <span class="badge">Free web tool</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-tile-checker/" target="_blank" rel="noopener">Open tool &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🎛️</div>
+        <h3>Palette Reducer</h3>
+        <p>Upload pixel art and reduce it to N colors with median-cut quantization. Compare before/after at zoom, copy the resulting hexes, and download a clean PNG. All in your bro</p>
+        <div class="row">
+          <span class="badge">Free web tool</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-palette-reducer/" target="_blank" rel="noopener">Open tool &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">#️⃣</div>
+        <h3>Pixel Grid Overlay</h3>
+        <p>Free browser tool by LaunchTower — runs entirely in your browser, nothing is uploaded.</p>
+        <div class="row">
+          <span class="badge">Free web tool</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-grid-overlay/" target="_blank" rel="noopener">Open tool &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🧰</div>
+        <h3>Bitmap Font Builder</h3>
+        <p>Click/drag on the grid to paint. Shift+click to erase. Draw A–Z, 0–9 and punctuation, then preview your sample text.</p>
+        <div class="row">
+          <span class="badge">Free web tool</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-font-builder/" target="_blank" rel="noopener">Open tool &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🧰</div>
+        <h3>Tilemap Editor Lite</h3>
+        <p>Changing size keeps existing tiles where they fit.</p>
+        <div class="row">
+          <span class="badge">Free web tool</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-tilemap-editor/" target="_blank" rel="noopener">Open tool &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🧰</div>
+        <h3>Color Blindness Simulator</h3>
+        <p>Upload pixel art, see how it reads under the four main color-vision types, and catch palette pairs that collapse.</p>
+        <div class="row">
+          <span class="badge">Free web tool</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-colorblind-sim/" target="_blank" rel="noopener">Open tool &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🧰</div>
+        <h3>Sprite Hitbox Editor</h3>
+        <p>Free browser tool by LaunchTower — runs entirely in your browser, nothing is uploaded.</p>
+        <div class="row">
+          <span class="badge">Free web tool</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-hitbox-editor/" target="_blank" rel="noopener">Open tool &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🧰</div>
+        <h3>Normal Map Generator</h3>
+        <p>Turn any sprite or grayscale heightmap into a tangent-space normal map — right in your browser.</p>
+        <div class="row">
+          <span class="badge">Free web tool</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-normal-map/" target="_blank" rel="noopener">Open tool &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🧰</div>
+        <h3>Screenshot Framer</h3>
+        <p>Turn raw pixel art into a polished cover. Crisp upscale, padding, background, rounded corners, caption — sized for itch.io and social.</p>
+        <div class="row">
+          <span class="badge">Free web tool</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-screenshot-framer/" target="_blank" rel="noopener">Open tool &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🧰</div>
+        <h3>Sprite Flip &amp; Rotate</h3>
+        <p>Free browser tool by LaunchTower — runs entirely in your browser, nothing is uploaded.</p>
+        <div class="row">
+          <span class="badge">Free web tool</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-sprite-transform/" target="_blank" rel="noopener">Open tool &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🧰</div>
+        <h3>Pixel Art Diff</h3>
+        <p>Upload two versions of a sprite and see exactly what changed. Highlight the diff, onion-skin the layers, or drag a slider to compare side by side. 100% in your browser — </p>
+        <div class="row">
+          <span class="badge">Free web tool</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-pixel-diff/" target="_blank" rel="noopener">Open tool &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🧰</div>
+        <h3>Resolution Planner</h3>
+        <p>Pick a base pixel resolution. See integer scale factors for common screens, safe zones, and UI grid sizes. Export a reference PNG.</p>
+        <div class="row">
+          <span class="badge">Free web tool</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-resolution-planner/" target="_blank" rel="noopener">Open tool &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🧰</div>
+        <h3>Pixel Painter</h3>
+        <p>Tiny pixel-art editor — paint, fill, eyedrop, export. No account, no network.</p>
+        <div class="row">
+          <span class="badge">Free web tool</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-pixel-painter/" target="_blank" rel="noopener">Open tool &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🧰</div>
+        <h3>Iso Tile Preview</h3>
+        <p>Project a top-down tile or small map into a 2:1 isometric view, then export it as a PNG.</p>
+        <div class="row">
+          <span class="badge">Free web tool</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-iso-preview/" target="_blank" rel="noopener">Open tool &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🧰</div>
+        <h3>Palette Contrast Checker</h3>
+        <p>Score every color pair in your palette for contrast &amp;amp; readability — built for pixel artists</p>
+        <div class="row">
+          <span class="badge">Free web tool</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-palette-contrast/" target="_blank" rel="noopener">Open tool &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🧰</div>
+        <h3>Tile Variation Generator</h3>
+        <p>Upload one tile, get N hand-tuned variations — seeded jitter, hue/lightness shifts, flips and pixel speckles. Preview in a grid, download each as PNG.</p>
+        <div class="row">
+          <span class="badge">Free web tool</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-tile-variations/" target="_blank" rel="noopener">Open tool &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🧰</div>
+        <h3>Sprite Shadow Generator</h3>
+        <p>Add a drop shadow or a skewed ground shadow to any sprite. Tune offset, opacity, color and skew, preview at zoom, then download a clean PNG. Runs 100% in your browser — n</p>
+        <div class="row">
+          <span class="badge">Free web tool</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-sprite-shadow/" target="_blank" rel="noopener">Open tool &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🧰</div>
+        <h3>LaunchTower Pixel Tile Packs</h3>
+        <p>Three hand-tuned 16×16 pixel tile sets for 2D games: Forest, Dungeon, and Winter Forest. Free for personal and commercial use.</p>
+        <div class="row">
+          <span class="badge">Free web tool</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-tile-packs/" target="_blank" rel="noopener">Open tool &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🧰</div>
+        <h3>Aseprite Palette to CSS Variables</h3>
+        <p>Paste an Aseprite palette (hex list, ASE/JSON export, or CSV) and get ready-to-use CSS custom properties, with contrast checks and copy-to-clipboard.</p>
+        <div class="row">
+          <span class="badge">Free web tool</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-palette-css/" target="_blank" rel="noopener">Open tool &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🧰</div>
+        <h3>Sprite Embedder</h3>
+        <p>Upload PNG sprites → base64 data-URIs, CSS sprite-sheet classes &amp;amp; ready HTML tags. No server, no upload — everything stays in your browser.</p>
+        <div class="row">
+          <span class="badge">Free web tool</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-sprite-embedder/" target="_blank" rel="noopener">Open tool &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🧰</div>
+        <h3>Tilemap Renderer</h3>
+        <p>More free tools &amp;amp; games: LaunchTower</p>
+        <div class="row">
+          <span class="badge">Free web tool</span>
+          <a class="btn primary" href="https://pennypenguinapp-beep.github.io/launchtower-tilemap-renderer/" target="_blank" rel="noopener">Open tool &rarr;</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="assets">
+    <div class="sec-head">
+      <span class="tag">Build</span>
+      <h2>Asset Packs</h2>
+      <span class="desc">Pixel-art assets ready to drop into your game.</span>
+    </div>
+    <div class="grid">
+      <div class="card">
+        <div class="icon">🧱</div>
+        <h3>Autumn Forest Tile Pack</h3>
+        <p>16 pixel-art forest tiles at 128×128 in autumn colors: gold/orange foliage, path, water, props. Free (CC-BY).</p>
+        <div class="row">
+          <span class="badge">Asset pack</span>
+          <a class="btn primary" href="https://launchtower.itch.io/autumn-forest-tile-pack" target="_blank" rel="noopener">Get it on itch.io &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🏰</div>
+        <h3>Dungeon Tile Pack</h3>
+        <p>Pixel-art asset pack, free to download.</p>
+        <div class="row">
+          <span class="badge">Asset pack</span>
+          <a class="btn primary" href="https://launchtower.itch.io/dungeon-tile-pack" target="_blank" rel="noopener">Get it on itch.io &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🧱</div>
+        <h3>Ember Dungeon Tile Pack</h3>
+        <p>Pixel-art asset pack, free to download.</p>
+        <div class="row">
+          <span class="badge">Asset pack</span>
+          <a class="btn primary" href="https://launchtower.itch.io/ember-dungeon-tile-pack" target="_blank" rel="noopener">Get it on itch.io &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🌲</div>
+        <h3>Forest Tile Pack</h3>
+        <p>Pixel-art asset pack, free to download.</p>
+        <div class="row">
+          <span class="badge">Asset pack</span>
+          <a class="btn primary" href="https://launchtower.itch.io/forest-tile-pack" target="_blank" rel="noopener">Get it on itch.io &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🧱</div>
+        <h3>Ice Dungeon Tile Pack</h3>
+        <p>Pixel-art asset pack, free to download.</p>
+        <div class="row">
+          <span class="badge">Asset pack</span>
+          <a class="btn primary" href="https://launchtower.itch.io/ice-dungeon-tile-pack" target="_blank" rel="noopener">Get it on itch.io &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🧱</div>
+        <h3>Toxic Dungeon Tile Pack</h3>
+        <p>Pixel-art asset pack, free to download.</p>
+        <div class="row">
+          <span class="badge">Asset pack</span>
+          <a class="btn primary" href="https://launchtower.itch.io/toxic-dungeon-tile-pack" target="_blank" rel="noopener">Get it on itch.io &rarr;</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🧱</div>
+        <h3>Winter Forest Tile Pack</h3>
+        <p>16 pixel-art forest tiles at 128×128 in winter colors: frosted foliage, icy water, path, props. Free (CC-BY).</p>
+        <div class="row">
+          <span class="badge">Asset pack</span>
+          <a class="btn primary" href="https://launchtower.itch.io/winter-forest-tile-pack" target="_blank" rel="noopener">Get it on itch.io &rarr;</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
 
 <footer>
-  Part of <a href="https://pennypenguinapp-beep.github.io/" target="_blank" rel="noopener">LaunchTower</a> — free tools for pixel artists &amp; game devs.
+  <div class="wrap">
+    <div><span class="brand">LaunchTower</span> — free games, pixel art &amp; tools, made fast.</div>
+    <div>itch.io: <a href="https://launchtower.itch.io" target="_blank" rel="noopener">https://launchtower.itch.io</a></div>
+    <div class="made">© LaunchTower. All products free to use. Built with plain HTML/CSS/JS.</div>
+  </div>
 </footer>
 
 <script>
-(function () {
-  "use strict";
-  var cv = document.getElementById("cv");
-  var ctx = cv.getContext("2d");
-  var empty = document.getElementById("empty");
-  var dims = document.getElementById("dims");
-  var status = document.getElementById("status");
-  var box = document.getElementById("box");
-  var fileInput = document.getElementById("file");
-  var drop = document.getElementById("drop");
-
-  var sprite = null;       // HTMLImageElement
-  var sw = 0, sh = 0;      // sprite natural size
-  var type = "drop";
-
-  var els = {
-    ox: document.getElementById("ox"),
-    oy: document.getElementById("oy"),
-    skew: document.getElementById("skew"),
-    op: document.getElementById("op"),
-    color: document.getElementById("color"),
-    blur: document.getElementById("blur"),
-    checker: document.getElementById("checker"),
-    zoom: document.getElementById("zoom")
-  };
-  var vals = {
-    ox: document.getElementById("oxVal"),
-    oy: document.getElementById("oyVal"),
-    skew: document.getElementById("skewVal"),
-    op: document.getElementById("opVal"),
-    blur: document.getElementById("blurVal"),
-    zoom: document.getElementById("zoomVal")
-  };
-
-  function hexToRgb(hex) {
-    var h = hex.replace("#", "");
-    if (h.length === 3) h = h[0]+h[0]+h[1]+h[1]+h[2]+h[2];
-    var n = parseInt(h, 16);
-    return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
-  }
-
-  function getParams() {
-    return {
-      ox: parseInt(els.ox.value, 10),
-      oy: parseInt(els.oy.value, 10),
-      skew: parseInt(els.skew.value, 10),
-      op: parseInt(els.op.value, 10) / 100,
-      color: els.color.value,
-      blur: parseInt(els.blur.value, 10),
-      checker: els.checker.checked,
-      zoom: parseInt(els.zoom.value, 10)
-    };
-  }
-
-  function updateLabels() {
-    var p = getParams();
-    vals.ox.textContent = p.ox;
-    vals.oy.textContent = p.oy;
-    vals.skew.textContent = p.skew;
-    vals.op.textContent = Math.round(p.op * 100) + "%";
-    vals.blur.textContent = p.blur;
-    vals.zoom.textContent = p.zoom + "×";
-  }
-
-  function paintChecker(c, w, h) {
-    var cell = 12;
-    c.fillStyle = "#2a2e3a";
-    c.fillRect(0, 0, w, h);
-    c.fillStyle = "#343a49";
-    for (var y = 0; y < h; y += cell) {
-      for (var x = 0; x < w; x += cell) {
-        if (((x / cell) + (y / cell)) % 2 === 0) c.fillRect(x, y, cell, cell);
-      }
-    }
-  }
-
-  function drawShadow(c, p) {
-    var rgb = hexToRgb(p.color);
-    var alpha = p.op;
-    c.save();
-    if (p.blur > 0) c.filter = "blur(" + p.blur + "px)";
-    c.globalAlpha = alpha;
-    c.fillStyle = "rgb(" + rgb[0] + "," + rgb[1] + "," + rgb[2] + ")";
-
-    if (type === "drop") {
-      // offset silhouette behind sprite
-      c.drawImage(sprite, p.ox, p.oy);
-    } else {
-      // ground shadow: skewed, flattened silhouette anchored at sprite bottom
-      var cx = sw / 2;
-      var bottom = sh;
-      var skewRad = p.skew * Math.PI / 180;
-      var flatten = 0.35; // vertical squash for a "ground" look
-      c.translate(cx + p.ox, bottom + p.oy);
-      c.transform(1, 0, Math.tan(skewRad), flatten, 0, 0);
-      c.drawImage(sprite, -sw / 2, -sh);
-    }
-    c.restore();
-  }
-
-  function render() {
-    if (!sprite) return;
-    var p = getParams();
-    var z = p.zoom;
-    // canvas = sprite size + room for shadow offsets/blur
-    var pad = 80;
-    var W = (sw + pad * 2) * z;
-    var H = (sh + pad * 2) * z;
-    cv.width = W;
-    cv.height = H;
-    cv.style.width = Math.min(W, box.clientWidth - 8) + "px";
-    cv.style.height = "";
-    ctx.imageSmoothingEnabled = false;
-
-    if (p.checker) paintChecker(ctx, W, H);
-    else { ctx.fillStyle = "#0e1015"; ctx.fillRect(0, 0, W, H); }
-
-    ctx.save();
-    ctx.scale(z, z);
-    ctx.translate(pad, pad);
-    drawShadow(ctx, p);
-    ctx.globalAlpha = 1;
-    ctx.filter = "none";
-    ctx.drawImage(sprite, 0, 0);
-    ctx.restore();
-
-    dims.textContent = sw + "×" + sh + " px";
-  }
-
-  function loadFile(file) {
-    if (!file || !file.type || file.type.indexOf("image/") !== 0) {
-      status.textContent = "Please choose an image file.";
-      status.style.color = "#e07a7a";
-      return;
-    }
-    var url = URL.createObjectURL(file);
-    var img = new Image();
-    img.onload = function () {
-      sprite = img;
-      sw = img.naturalWidth;
-      sh = img.naturalHeight;
-      empty.style.display = "none";
-      cv.style.display = "block";
-      status.style.color = "var(--ok)";
-      status.textContent = "Loaded " + sw + "×" + sh + " px";
-      URL.revokeObjectURL(url);
-      render();
-    };
-    img.onerror = function () {
-      status.textContent = "Could not read that image.";
-      status.style.color = "#e07a7a";
-    };
-    img.src = url;
-  }
-
-  // load example: generate a 48x48 pixel-art smiley in code, same path as upload
-  function loadExample() {
-    var size = 48;
-    var c = document.createElement("canvas");
-    c.width = size; c.height = size;
-    var x = c.getContext("2d");
-    x.clearRect(0, 0, size, size);
-    // face (circle)
-    x.fillStyle = "#ffd23f";
-    x.beginPath();
-    x.arc(24, 24, 20, 0, Math.PI * 2);
-    x.fill();
-    // outline
-    x.strokeStyle = "#3a2c0a";
-    x.lineWidth = 2;
-    x.stroke();
-    // eyes
-    x.fillStyle = "#222";
-    x.fillRect(15, 17, 4, 6);
-    x.fillRect(29, 17, 4, 6);
-    // smile
-    x.strokeStyle = "#222";
-    x.lineWidth = 3;
-    x.beginPath();
-    x.arc(24, 26, 9, 0.25 * Math.PI, 0.75 * Math.PI);
-    x.stroke();
-    // cheeks
-    x.fillStyle = "#ff8a5c";
-    x.fillRect(11, 27, 4, 3);
-    x.fillRect(33, 27, 4, 3);
-    var img = new Image();
-    img.onload = function () {
-      sprite = img;
-      sw = img.naturalWidth;
-      sh = img.naturalHeight;
-      empty.style.display = "none";
-      cv.style.display = "block";
-      status.style.color = "var(--ok)";
-      status.textContent = "Loaded example " + sw + "\u00d7" + sh + " px";
-      render();
-    };
-    img.src = c.toDataURL("image/png");
-  }
-  document.getElementById("loadExample").addEventListener("click", loadExample);
-
-  // file input + dropzone
-  drop.addEventListener("click", function () { fileInput.click(); });
-  fileInput.addEventListener("change", function (e) {
-    if (e.target.files && e.target.files[0]) loadFile(e.target.files[0]);
-  });
-  ["dragenter", "dragover"].forEach(function (ev) {
-    drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.add("over"); });
-  });
-  ["dragleave", "drop"].forEach(function (ev) {
-    drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.remove("over"); });
-  });
-  drop.addEventListener("drop", function (e) {
-    if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) loadFile(e.dataTransfer.files[0]);
-  });
-
-  // type segmented control
-  var seg = document.getElementById("typeSeg");
-  seg.addEventListener("click", function (e) {
-    var b = e.target.closest("button");
-    if (!b) return;
-    type = b.getAttribute("data-type");
-    Array.prototype.forEach.call(seg.children, function (c) {
-      c.classList.toggle("active", c === b);
+  // Smooth-scroll offset for the sticky header (no external libs, no network).
+  (function(){
+    var links = document.querySelectorAll('a[href^="#"]');
+    links.forEach(function(a){
+      a.addEventListener('click', function(e){
+        var id = a.getAttribute('href');
+        if(id.length < 2) return;
+        var el = document.querySelector(id);
+        if(!el) return;
+        e.preventDefault();
+        var top = el.getBoundingClientRect().top + window.pageYOffset - 64;
+        window.scrollTo({top: top, behavior: 'smooth'});
+      });
     });
-    document.querySelector(".ground-only").style.display = (type === "ground") ? "block" : "none";
-    render();
-  });
-
-  // sliders / color / checkbox
-  Object.keys(els).forEach(function (k) {
-    els[k].addEventListener("input", function () {
-      updateLabels();
-      render();
-    });
-  });
-
-  // download
-  document.getElementById("download").addEventListener("click", function () {
-    if (!sprite) { status.textContent = "Load a sprite first."; status.style.color = "#e07a7a"; return; }
-    // render at 1x into an offscreen canvas for a clean export
-    var p = getParams();
-    var pad = 80;
-    var off = document.createElement("canvas");
-    off.width = (sw + pad * 2);
-    off.height = (sh + pad * 2);
-    var oc = off.getContext("2d");
-    oc.imageSmoothingEnabled = false;
-    if (p.checker) paintChecker(oc, off.width, off.height);
-    else { oc.fillStyle = "#0e1015"; oc.fillRect(0, 0, off.width, off.height); }
-    oc.save();
-    oc.translate(pad, pad);
-    drawShadow(oc, p);
-    oc.globalAlpha = 1;
-    oc.filter = "none";
-    oc.drawImage(sprite, 0, 0);
-    oc.restore();
-    off.toBlob(function (blob) {
-      if (!blob) { status.textContent = "Export failed."; status.style.color = "#e07a7a"; return; }
-      var a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = "sprite-shadow.png";
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      setTimeout(function () { URL.revokeObjectURL(a.href); }, 4000);
-      status.style.color = "var(--ok)";
-      status.textContent = "Downloaded sprite-shadow.png";
-    }, "image/png");
-  });
-
-  // reset
-  document.getElementById("reset").addEventListener("click", function () {
-    els.ox.value = 6; els.oy.value = 8; els.skew.value = 18;
-    els.op.value = 45; els.color.value = "#000000"; els.blur.value = 0;
-    els.checker.checked = true; els.zoom.value = 8;
-    updateLabels();
-    render();
-  });
-
-  window.addEventListener("resize", render);
-
-  // ---- WebAudio sound cues (no audio files) ----
-  var AC = null;
-  function audio() {
-    if (!AC) { try { AC = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { return null; } }
-    if (AC && AC.state === "suspended") AC.resume();
-    return AC;
-  }
-  function blip(freq, dur, type, vol) {
-    var a = audio(); if (!a) return;
-    var o = a.createOscillator(), g = a.createGain();
-    o.type = type || "square"; o.frequency.value = freq;
-    g.gain.setValueAtTime(vol || 0.06, a.currentTime);
-    g.gain.exponentialRampToValueAtTime(0.0001, a.currentTime + dur);
-    o.connect(g); g.connect(a.destination);
-    o.start(); o.stop(a.currentTime + dur);
-  }
-  var lastBlip = 0;
-  function cueTweak() { var t = Date.now(); if (t - lastBlip > 90) { lastBlip = t; blip(520, 0.05, "square", 0.035); } }
-  function cueType() { blip(340, 0.09, "triangle", 0.06); }
-  function cueDownload() { blip(660, 0.08, "square", 0.06); setTimeout(function(){ blip(880, 0.12, "square", 0.06); }, 90); }
-  function cueReset() { blip(240, 0.1, "sawtooth", 0.04); }
-
-  // ---- Score: every tweak counts ----
-  var score = 0, best = 0;
-  try { best = parseInt(localStorage.getItem("spriteShadowBest") || "0", 10) || 0; } catch (e) {}
-  var scoreEl = document.getElementById("dims");
-  function updateScore() {
-    scoreEl.textContent = "Score " + score + " · Best " + best + (sprite ? " · " + sw + "×" + sh + " px" : "");
-    if (sprite) {
-      var d = document.getElementById("dims");
-      if (d) d.textContent = sw + "×" + sh + " px";
-    }
-  }
-  function bumpScore(n) {
-    score += n;
-    if (score > best) { best = score; try { localStorage.setItem("spriteShadowBest", String(best)); } catch (e) {} }
-    updateScore();
-  }
-
-  // ---- Pause (P / Esc) + auto-pause on tab hidden ----
-  var paused = false;
-  var pauseBtn = document.getElementById("pauseBtn");
-  var overlay = document.getElementById("overlay");
-  var ovCard = overlay.querySelector(".card");
-  function setPaused(p) {
-    paused = p;
-    pauseBtn.style.display = p ? "none" : "inline-block";
-    if (p) {
-      ovCard.innerHTML = '<div class="logo">⏸</div><h2>Paused</h2>' +
-        '<p class="scoreline">Score ' + score + ' · Best ' + best + '</p>' +
-        '<button class="bigbtn" id="resumeBtn">▶&nbsp; RESUME</button>';
-      overlay.style.display = "flex";
-      document.getElementById("resumeBtn").addEventListener("click", function () { setPaused(false); });
-    } else {
-      overlay.style.display = "none";
-    }
-  }
-  pauseBtn.addEventListener("click", function () { setPaused(true); });
-  document.addEventListener("visibilitychange", function () {
-    if (document.hidden && !paused) setPaused(true);
-  });
-
-  // ---- Keyboard shortcuts ----
-  document.addEventListener("keydown", function (e) {
-    if (e.target && /INPUT|TEXTAREA|SELECT/.test(e.target.tagName) && e.target.type !== "range") return;
-    var k = e.key.toLowerCase();
-    if (k === "p" || k === "escape") { if (!paused) setPaused(true); else setPaused(false); return; }
-    if (paused) return;
-    if (k === "d") { seg.querySelector('[data-type="drop"]').click(); return; }
-    if (k === "g") { seg.querySelector('[data-type="ground"]').click(); return; }
-    if (k === "o") { els.op.value = Math.min(100, parseInt(els.op.value, 10) + 5); els.op.dispatchEvent(new Event("input")); return; }
-    if (k === "b") { els.blur.value = Math.min(16, parseInt(els.blur.value, 10) + 1); els.blur.dispatchEvent(new Event("input")); return; }
-    if (k >= "1" && k <= "9") { els.zoom.value = k; els.zoom.dispatchEvent(new Event("input")); return; }
-  });
-
-  // ---- Touch: tap dropzone opens picker; sliders work natively ----
-  drop.addEventListener("touchstart", function (e) { e.preventDefault(); fileInput.click(); }, { passive: false });
-
-  // ---- Wire sounds into existing actions ----
-  var origSeg = seg;
-  seg.addEventListener("click", function (e) { if (e.target.closest("button")) cueType(); });
-  Object.keys(els).forEach(function (k) {
-    els[k].addEventListener("input", function () { cueTweak(); bumpScore(1); });
-  });
-  document.getElementById("download").addEventListener("click", function () {
-    if (sprite) { cueDownload(); bumpScore(10); }
-  });
-  document.getElementById("reset").addEventListener("click", function () { cueReset(); score = 0; updateScore(); });
-  document.getElementById("loadExample").addEventListener("click", function () { blip(440, 0.07, "triangle", 0.05); });
-
-  // ---- Start screen ----
-  function startGame() {
-    audio();
-    overlay.style.display = "none";
-    pauseBtn.style.display = "inline-block";
-    blip(520, 0.08, "square", 0.05);
-    setTimeout(function () { blip(780, 0.1, "square", 0.05); }, 100);
-    loadExample();
-    updateScore();
-  }
-  document.getElementById("playBtn").addEventListener("click", startGame);
-
-  updateScore();
-  updateLabels();
-})();
+  })();
 </script>
 </body>
 </html>
