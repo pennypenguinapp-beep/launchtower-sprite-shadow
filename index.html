@@ -161,9 +161,50 @@
   footer a { color: var(--accent); text-decoration: none; font-weight: 600; }
   footer a:hover { text-decoration: underline; }
   .status { font-size: .75rem; color: var(--ok); margin-top: 8px; text-align: center; min-height: 1em; }
+  #overlay {
+    position: fixed; inset: 0; z-index: 50;
+    background: rgba(10,12,17,.88);
+    backdrop-filter: blur(3px);
+    display: flex; align-items: center; justify-content: center;
+    text-align: center; padding: 24px;
+  }
+  #overlay .card { max-width: 520px; }
+  #overlay .logo { font-size: 3rem; margin-bottom: 12px; }
+  #overlay h2 { font-size: 1.7rem; font-weight: 800; margin-bottom: 10px; }
+  #overlay h2 .brand { color: var(--accent); }
+  #overlay p { color: var(--muted); font-size: .95rem; line-height: 1.6; margin-bottom: 8px; }
+  #overlay .keys { color: var(--muted); font-size: .78rem; margin-bottom: 20px; }
+  #overlay .keys kbd {
+    background: var(--panel2); border: 1px solid var(--border); border-radius: 5px;
+    padding: 2px 7px; font-family: inherit; font-size: .74rem; color: var(--text); margin: 0 2px;
+  }
+  #overlay .bigbtn {
+    display: inline-block; background: var(--accent); color: #fff; border: none;
+    border-radius: 12px; padding: 15px 44px; font-size: 1.1rem; font-weight: 800;
+    cursor: pointer; letter-spacing: .5px; transition: background .15s, transform .1s;
+  }
+  #overlay .bigbtn:hover { background: var(--accent2); transform: translateY(-1px); }
+  #overlay .scoreline { font-size: 1.05rem; margin-bottom: 6px; color: var(--text); font-weight: 600; }
+  #overlay .newbest { color: var(--ok); font-weight: 800; font-size: .9rem; margin-bottom: 14px; letter-spacing: 1px; }
+  #pauseBtn {
+    position: fixed; top: 14px; right: 14px; z-index: 40;
+    background: var(--panel2); color: var(--text); border: 1px solid var(--border);
+    border-radius: 9px; padding: 8px 14px; font-size: .8rem; font-weight: 700; cursor: pointer;
+  }
+  #pauseBtn:hover { background: #2b3040; }
 </style>
 </head>
 <body>
+<div id="overlay">
+  <div class="card">
+    <div class="logo">🎨</div>
+    <h2>Sprite Shadow <span class="brand">Generator</span></h2>
+    <p>Drop a sprite in, tune the shadow, export a clean PNG — 100% in your browser.</p>
+    <p class="keys"><kbd>D</kbd>/<kbd>G</kbd> shadow type · <kbd>O</kbd> opacity · <kbd>B</kbd> blur · <kbd>1</kbd>–<kbd>9</kbd> zoom · <kbd>P</kbd> pause</p>
+    <button class="bigbtn" id="playBtn">▶&nbsp; PLAY</button>
+  </div>
+</div>
+<button id="pauseBtn" style="display:none">⏸ Pause</button>
 <header>
   <h1>Sprite Shadow <span class="brand">Generator</span></h1>
   <p class="sub">Add a drop shadow or a skewed ground shadow to any sprite. Tune offset, opacity, color and skew, preview at zoom, then download a clean PNG. Runs 100% in your browser — nothing is uploaded.</p>
@@ -535,6 +576,110 @@
   });
 
   window.addEventListener("resize", render);
+
+  // ---- WebAudio sound cues (no audio files) ----
+  var AC = null;
+  function audio() {
+    if (!AC) { try { AC = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { return null; } }
+    if (AC && AC.state === "suspended") AC.resume();
+    return AC;
+  }
+  function blip(freq, dur, type, vol) {
+    var a = audio(); if (!a) return;
+    var o = a.createOscillator(), g = a.createGain();
+    o.type = type || "square"; o.frequency.value = freq;
+    g.gain.setValueAtTime(vol || 0.06, a.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.0001, a.currentTime + dur);
+    o.connect(g); g.connect(a.destination);
+    o.start(); o.stop(a.currentTime + dur);
+  }
+  var lastBlip = 0;
+  function cueTweak() { var t = Date.now(); if (t - lastBlip > 90) { lastBlip = t; blip(520, 0.05, "square", 0.035); } }
+  function cueType() { blip(340, 0.09, "triangle", 0.06); }
+  function cueDownload() { blip(660, 0.08, "square", 0.06); setTimeout(function(){ blip(880, 0.12, "square", 0.06); }, 90); }
+  function cueReset() { blip(240, 0.1, "sawtooth", 0.04); }
+
+  // ---- Score: every tweak counts ----
+  var score = 0, best = 0;
+  try { best = parseInt(localStorage.getItem("spriteShadowBest") || "0", 10) || 0; } catch (e) {}
+  var scoreEl = document.getElementById("dims");
+  function updateScore() {
+    scoreEl.textContent = "Score " + score + " · Best " + best + (sprite ? " · " + sw + "×" + sh + " px" : "");
+    if (sprite) {
+      var d = document.getElementById("dims");
+      if (d) d.textContent = sw + "×" + sh + " px";
+    }
+  }
+  function bumpScore(n) {
+    score += n;
+    if (score > best) { best = score; try { localStorage.setItem("spriteShadowBest", String(best)); } catch (e) {} }
+    updateScore();
+  }
+
+  // ---- Pause (P / Esc) + auto-pause on tab hidden ----
+  var paused = false;
+  var pauseBtn = document.getElementById("pauseBtn");
+  var overlay = document.getElementById("overlay");
+  var ovCard = overlay.querySelector(".card");
+  function setPaused(p) {
+    paused = p;
+    pauseBtn.style.display = p ? "none" : "inline-block";
+    if (p) {
+      ovCard.innerHTML = '<div class="logo">⏸</div><h2>Paused</h2>' +
+        '<p class="scoreline">Score ' + score + ' · Best ' + best + '</p>' +
+        '<button class="bigbtn" id="resumeBtn">▶&nbsp; RESUME</button>';
+      overlay.style.display = "flex";
+      document.getElementById("resumeBtn").addEventListener("click", function () { setPaused(false); });
+    } else {
+      overlay.style.display = "none";
+    }
+  }
+  pauseBtn.addEventListener("click", function () { setPaused(true); });
+  document.addEventListener("visibilitychange", function () {
+    if (document.hidden && !paused) setPaused(true);
+  });
+
+  // ---- Keyboard shortcuts ----
+  document.addEventListener("keydown", function (e) {
+    if (e.target && /INPUT|TEXTAREA|SELECT/.test(e.target.tagName) && e.target.type !== "range") return;
+    var k = e.key.toLowerCase();
+    if (k === "p" || k === "escape") { if (!paused) setPaused(true); else setPaused(false); return; }
+    if (paused) return;
+    if (k === "d") { seg.querySelector('[data-type="drop"]').click(); return; }
+    if (k === "g") { seg.querySelector('[data-type="ground"]').click(); return; }
+    if (k === "o") { els.op.value = Math.min(100, parseInt(els.op.value, 10) + 5); els.op.dispatchEvent(new Event("input")); return; }
+    if (k === "b") { els.blur.value = Math.min(16, parseInt(els.blur.value, 10) + 1); els.blur.dispatchEvent(new Event("input")); return; }
+    if (k >= "1" && k <= "9") { els.zoom.value = k; els.zoom.dispatchEvent(new Event("input")); return; }
+  });
+
+  // ---- Touch: tap dropzone opens picker; sliders work natively ----
+  drop.addEventListener("touchstart", function (e) { e.preventDefault(); fileInput.click(); }, { passive: false });
+
+  // ---- Wire sounds into existing actions ----
+  var origSeg = seg;
+  seg.addEventListener("click", function (e) { if (e.target.closest("button")) cueType(); });
+  Object.keys(els).forEach(function (k) {
+    els[k].addEventListener("input", function () { cueTweak(); bumpScore(1); });
+  });
+  document.getElementById("download").addEventListener("click", function () {
+    if (sprite) { cueDownload(); bumpScore(10); }
+  });
+  document.getElementById("reset").addEventListener("click", function () { cueReset(); score = 0; updateScore(); });
+  document.getElementById("loadExample").addEventListener("click", function () { blip(440, 0.07, "triangle", 0.05); });
+
+  // ---- Start screen ----
+  function startGame() {
+    audio();
+    overlay.style.display = "none";
+    pauseBtn.style.display = "inline-block";
+    blip(520, 0.08, "square", 0.05);
+    setTimeout(function () { blip(780, 0.1, "square", 0.05); }, 100);
+    loadExample();
+    updateScore();
+  }
+  document.getElementById("playBtn").addEventListener("click", startGame);
+
+  updateScore();
   updateLabels();
 })();
 </script>
